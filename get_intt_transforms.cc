@@ -38,15 +38,20 @@ void get_intt_transforms()
 
 	std::vector<std::string> component_names = {"snsr_A", "snsr_B", "snsr_C", "snsr_D", "ndcp"};
 
-	TVector3 measured;
-	TVector3 nominal;
-	TVector3 u;
-	TVector3 v;
+	TMatrix U(2, 2);
+	TMatrix V(2, 2);
+
+	TVector2 u, v;
+
+	TVector2 u1, v1;
+	TVector2 u2, v2;
+	TVector2 u3, v3;
+	TVector2 u4, v4;
+
 	int lyr;
 	int ladders[4] = {12, 12, 16, 16};
 	int ldr;
 	int i;
-	int j;
 	Long64_t n;
 	char buff[16];
 	std::string temp;
@@ -61,45 +66,60 @@ void get_intt_transforms()
 				temp += "_";
 				temp += component_names[i];
 
-				j = 0;
-				dx = 0;
-				dy = 0;
-				measured = TVector3(0.0, 0.0, 0.0);
-				nominal = TVector3(0.0, 0.0, 0.0);
 				for(n = 0; n < geo_tree->GetEntriesFast(); ++n)
 				{
 					geo_tree->GetEntry(n);
 					if(name.find(temp) != std::string::npos)
 					{
-						measured += TVector3(mx, my, 0.0);
-						nominal += TVector3(nx, ny, 0.0);
-						++j;
+						if(name.find("1") != std::string::npos)
+						{
+							u1.SetX(mx);
+							u1.SetY(my);
+
+							v1.SetX(nx);
+							v1.SetY(ny);
+						}
+						if(name.find("2") != std::string::npos)
+						{
+							u2.SetX(mx);
+							u2.SetY(my);
+
+							v2.SetX(nx);
+							v2.SetY(ny);
+						}
+						if(name.find("3") != std::string::npos)
+						{
+							u3.SetX(mx);
+							u3.SetY(my);
+
+							v3.SetX(nx);
+							v3.SetY(ny);
+						}
+						if(name.find("4") != std::string::npos)
+						{
+							u4.SetX(mx);
+							u4.SetY(my);
+
+							v4.SetX(nx);
+							v4.SetY(ny);
+						}
 					}
 				}
-				measured *= 1.0 / j;
-				nominal *= 1.0 / j;
-				dx = (measured.X() - nominal.X());
-				dy = (measured.Y() - nominal.Y());
+				u = (u1 + u2 + u3 + u4) / 4.0;
+				u1 -= u;
+				u2 -= u;
+				u3 -= u;
+				u4 -= u;
 
-				j = 0;
-				alpha = 0;
-				for(n = 0; n < geo_tree->GetEntriesFast(); ++n)
-				{
-					geo_tree->GetEntry(n);
-					if(name.find(temp) != std::string::npos)
-					{
-						u = TVector3(mx, my, 0.0) - measured;
-						v = TVector3(nx, ny, 0.0) - nominal;
+				v = (v1 + v2 + v3 + v4) / 4.0;
+				v1 -= v;
+				v2 -= v;
+				v3 -= v;
+				v4 -= v;
 
-						u *= 1.0 / u.Mag();
-						v *= 1.0 / v.Mag();
-
-						alpha += asin(v.Cross(u).Z());
-
-						++j;
-					}
-				}
-				alpha /= j;
+				dx = u.X() - v.X();
+				dy = u.Y() - v.Y();
+				alpha = ((u1.Phi() - v1.Phi()) + (u2.Phi() - v2.Phi()) + (u3.Phi() - v3.Phi()) + (u4.Phi() - v4.Phi())) / 4.0;
 
 				name = temp;
 
