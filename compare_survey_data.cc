@@ -10,6 +10,7 @@ void compare_survey_data()
 	TFile* file = TFile::Open("intt_geo.root", "RECREATE");
 	file->cd();
 	TTree* tree = new TTree("intt_geo", "intt_geo");
+	tree->SetDirectory(file);
 
 	std::string name;
 	std::string* name_ptr = &name;
