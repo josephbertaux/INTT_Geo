@@ -143,13 +143,15 @@ void get_intt_transforms()
 				dx = mx - nx;
 				dy = my - ny;
 
-				u = (u1 + u2 + u3 + u4) / 4.0;
+				u.SetX(mx);
+				u.SetY(my);
 				u1 -= u;
 				u2 -= u;
 				u3 -= u;
 				u4 -= u;
 
-				v = (v1 + v2 + v3 + v4) / 4.0;
+				v.SetX(nx);
+				v.SetY(ny);
 				v1 -= v;
 				v2 -= v;
 				v3 -= v;
