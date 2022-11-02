@@ -17,8 +17,15 @@ void get_intt_transforms()
 	float alpha;
 
 	tree->Branch("name", &name);
+
+	tree->Branch("mx", &mx);
+	tree->Branch("nx", &nx);
 	tree->Branch("dx", &dx);
+
+	tree->Branch("my", &my);
+	tree->Branch("ny", &ny);
 	tree->Branch("dy", &dy);
+
 	tree->Branch("alpha", &alpha);
 
 	geo_tree->SetBranchStatus("*", 0);
@@ -38,8 +45,7 @@ void get_intt_transforms()
 
 	std::vector<std::string> component_names = {"snsr_A", "snsr_B", "snsr_C", "snsr_D", "ndcp"};
 
-	TMatrix U(2, 2);
-	TMatrix V(2, 2);
+	bool b1, b2, b3, b4;
 
 	TVector2 u, v;
 
@@ -60,51 +66,83 @@ void get_intt_transforms()
 		for(ldr = 0; ldr < ladders[lyr]; ++ldr)
 		{
 			sprintf(buff, "B%iL%03i", lyr / 2, (lyr % 2) * 100 + ldr);
-			for(i= 0; i < component_names.size(); i++)
+			for(i= 0; i < component_names.size(); ++i)
 			{
 				temp = buff;
 				temp += "_";
 				temp += component_names[i];
+
+				b1 = true;
+				b2 = true;
+				b3 = true;
+				b4 = true;
 
 				for(n = 0; n < geo_tree->GetEntriesFast(); ++n)
 				{
 					geo_tree->GetEntry(n);
 					if(name.find(temp) != std::string::npos)
 					{
-						if(name.find("1") != std::string::npos)
+						if(name.find("_1") != std::string::npos)
 						{
 							u1.SetX(mx);
 							u1.SetY(my);
 
 							v1.SetX(nx);
 							v1.SetY(ny);
+
+							b1 = false;
 						}
-						if(name.find("2") != std::string::npos)
+						if(name.find("_2") != std::string::npos)
 						{
 							u2.SetX(mx);
 							u2.SetY(my);
 
 							v2.SetX(nx);
 							v2.SetY(ny);
+
+							b2 = false;
 						}
-						if(name.find("3") != std::string::npos)
+						if(name.find("_3") != std::string::npos)
 						{
 							u3.SetX(mx);
 							u3.SetY(my);
 
 							v3.SetX(nx);
 							v3.SetY(ny);
+
+							b3 = false;
 						}
-						if(name.find("4") != std::string::npos)
+						if(name.find("_4") != std::string::npos)
 						{
 							u4.SetX(mx);
 							u4.SetY(my);
 
 							v4.SetX(nx);
 							v4.SetY(ny);
+
+							b4 = false;
 						}
 					}
 				}
+
+				if(b1 or b2 or b3 or b4)continue;
+
+				//add the measured intersection x coordinate
+				mx =	( ((u4.Y() - u2.Y()) / (u4.X() - u2.X()) * u2.X() - u2.Y()) - ((u3.Y() - u1.Y()) / (u3.X() - u1.X()) * u1.X() - u1.Y()) ) /
+					( (u4.Y() - u2.Y()) / (u4.X() - u2.X()) - (u3.Y() - u1.Y()) / (u3.X() - u1.X()) );
+
+				my =	( ((u4.X() - u2.X()) / (u4.Y() - u2.Y()) * u2.Y() - u2.X()) - ((u3.X() - u1.X()) / (u3.Y() - u1.Y()) * u1.Y() - u1.X()) ) /
+					( (u4.X() - u2.X()) / (u4.Y() - u2.Y()) - (u3.X() - u1.X()) / (u3.Y() - u1.Y()) );
+
+				nx =	( ((v4.Y() - v2.Y()) / (v4.X() - v2.X()) * v2.X() - v2.Y()) - ((v3.Y() - v1.Y()) / (v3.X() - v1.X()) * v1.X() - v1.Y()) ) /
+					( (v4.Y() - v2.Y()) / (v4.X() - v2.X()) - (v3.Y() - v1.Y()) / (v3.X() - v1.X()) );
+
+				ny =	( ((v4.X() - v2.X()) / (v4.Y() - v2.Y()) * v2.Y() - v2.X()) - ((v3.X() - v1.X()) / (v3.Y() - v1.Y()) * v1.Y() - v1.X()) ) /
+					( (v4.X() - v2.X()) / (v4.Y() - v2.Y()) - (v3.X() - v1.X()) / (v3.Y() - v1.Y()) );
+
+				dx = mx - nx;
+				dy = my - ny;
+
 				u = (u1 + u2 + u3 + u4) / 4.0;
 				u1 -= u;
 				u2 -= u;
@@ -117,8 +155,6 @@ void get_intt_transforms()
 				v3 -= v;
 				v4 -= v;
 
-				dx = u.X() - v.X();
-				dy = u.Y() - v.Y();
 				alpha = ((u1.Phi() - v1.Phi()) + (u2.Phi() - v2.Phi()) + (u3.Phi() - v3.Phi()) + (u4.Phi() - v4.Phi())) / 4.0;
 
 				name = temp;
