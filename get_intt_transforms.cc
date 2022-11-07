@@ -151,11 +151,11 @@ void get_intt_transforms()
 				( (v4.Y() - v2.Y()) / (v4.X() - v2.X()) - (v3.Y() - v1.Y()) / (v3.X() - v1.X()) );
 			ny =	( ((v4.X() - v2.X()) / (v4.Y() - v2.Y()) * v2.Y() - v2.X()) - ((v3.X() - v1.X()) / (v3.Y() - v1.Y()) * v1.Y() - v1.X()) ) /
 				( (v4.X() - v2.X()) / (v4.Y() - v2.Y()) - (v3.X() - v1.X()) / (v3.Y() - v1.Y()) );
-			nz =	(u1.Z() + v2.Z() + v3.Z() + v4.Z()) * 0.25;
+			nz =	(v1.Z() + v2.Z() + v3.Z() + v4.Z()) * 0.25;
 
-			lddr_c.SetX(mx - mx);
-			lddr_c.SetY(my - my);
-			lddr_c.SetZ(mz - mz);
+			lddr_c.SetX(mx - nx);
+			lddr_c.SetY(my - ny);
+			lddr_c.SetZ(mz - nz);
 			lddr_x = ((u3 - u1).Unit() - (u4 - u2).Unit()).Unit();
 			lddr_y = ((u3 - u1).Unit() + (u4 - u2).Unit()).Unit();
 			lddr_z = lddr_x.Cross(lddr_y).Unit();
@@ -165,12 +165,12 @@ void get_intt_transforms()
 			lddr_transform[2][0] = lddr_x.Z();	lddr_transform[2][1] = lddr_y.Z();	lddr_transform[2][2] = lddr_z.Z();	lddr_transform[2][3] = lddr_c.Z();
 			lddr_transform[3][0] = 0.0;		lddr_transform[3][1] = 0.0;		lddr_transform[3][2] = 0.0;		lddr_transform[3][3] = 1.0;
 
-			//std::cout << std::endl;
-			//std::cout << lddr_transform[0][0] << "\t" << lddr_transform[0][1] << "\t" << lddr_transform[0][2] << "\t" << lddr_transform[0][3] << "\t" << std::endl;
-			//std::cout << lddr_transform[1][0] << "\t" << lddr_transform[1][1] << "\t" << lddr_transform[1][2] << "\t" << lddr_transform[1][3] << "\t" << std::endl;
-			//std::cout << lddr_transform[2][0] << "\t" << lddr_transform[2][1] << "\t" << lddr_transform[2][2] << "\t" << lddr_transform[2][3] << "\t" << std::endl;
-			//std::cout << lddr_transform[3][0] << "\t" << lddr_transform[3][1] << "\t" << lddr_transform[3][2] << "\t" << lddr_transform[3][3] << "\t" << std::endl;
-			//std::cout << std::endl;
+			std::cout << std::endl;
+			std::cout << lddr_transform[0][0] << "\t" << lddr_transform[0][1] << "\t" << lddr_transform[0][2] << "\t" << lddr_transform[0][3] << "\t" << std::endl;
+			std::cout << lddr_transform[1][0] << "\t" << lddr_transform[1][1] << "\t" << lddr_transform[1][2] << "\t" << lddr_transform[1][3] << "\t" << std::endl;
+			std::cout << lddr_transform[2][0] << "\t" << lddr_transform[2][1] << "\t" << lddr_transform[2][2] << "\t" << lddr_transform[2][3] << "\t" << std::endl;
+			std::cout << lddr_transform[3][0] << "\t" << lddr_transform[3][1] << "\t" << lddr_transform[3][2] << "\t" << lddr_transform[3][3] << "\t" << std::endl;
+			std::cout << std::endl;
 
 			for(i= 0; i < component_names.size(); ++i)
 			{
@@ -213,7 +213,7 @@ void get_intt_transforms()
 					( (v4.Y() - v2.Y()) / (v4.X() - v2.X()) - (v3.Y() - v1.Y()) / (v3.X() - v1.X()) );
 				ny =	( ((v4.X() - v2.X()) / (v4.Y() - v2.Y()) * v2.Y() - v2.X()) - ((v3.X() - v1.X()) / (v3.Y() - v1.Y()) * v1.Y() - v1.X()) ) /
 					( (v4.X() - v2.X()) / (v4.Y() - v2.Y()) - (v3.X() - v1.X()) / (v3.Y() - v1.Y()) );
-				nz =	(u1.Z() + v2.Z() + v3.Z() + v4.Z()) * 0.25;
+				nz =	(v1.Z() + v2.Z() + v3.Z() + v4.Z()) * 0.25;
 
 				m[0][0] = mx;
 				m[1][0] = my;
