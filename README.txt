@@ -3,14 +3,14 @@ Raw intt survey data is stored in the
 directory.
 
 
-First, do
+Do
 	root intt_survey_data.cc
 to produce
 	intt_survey_data.root
 which is the raw survey data, reproduced in a .root file
 
 
-Then, do
+Do
 	root intt_geo.cc
 to produce
 	intt_geo.root
@@ -20,12 +20,14 @@ engineering schematics (the survey "nominals" are reference points
 for the OGP machine")
 
 
-Then, do
+Do
 	root intt_transforms.cc
 to produce
 	intt_transforms.root
-which produces the affine transforms that move sensors from their
-nominal transforms on the ladder to their measured transforms on
-the ladder. The transforms act on vectors in the local sensor frame
-using the sPHENIX coordinate system to the ladder's frame using
-the sPHENIX coordinate system.
+which contains the parameters for the affine transforms from
+each sensor's local coordinate system to its parent ladder's
+coordinate system. Does this for both the measured positions
+and nominal positions in the intt_geo.root file.
+
+^^^
+Need to rewrite

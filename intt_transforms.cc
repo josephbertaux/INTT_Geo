@@ -173,7 +173,7 @@ void intt_transforms()
 			lddr_y = ((u3 - u1).Unit() + (u4 - u2).Unit()).Unit();
 			lddr_z = lddr_x.Cross(lddr_y).Unit();
 
-			//matrix that rotates from ladder nominal to ladder measured (local OGP coordinate system)
+			//matrix that transforms from ladder nominal to ladder measured (OGP coordinate system)
 			lddr_transform[0][0] = lddr_x.X();	lddr_transform[0][1] = lddr_y.X();	lddr_transform[0][2] = lddr_z.X();	lddr_transform[0][3] = lddr_c.X();
 			lddr_transform[1][0] = lddr_x.Y();	lddr_transform[1][1] = lddr_y.Y();	lddr_transform[1][2] = lddr_z.Y();	lddr_transform[1][3] = lddr_c.Y();
 			lddr_transform[2][0] = lddr_x.Z();	lddr_transform[2][1] = lddr_y.Z();	lddr_transform[2][2] = lddr_z.Z();	lddr_transform[2][3] = lddr_c.Z();
@@ -236,33 +236,19 @@ void intt_transforms()
 				n[2][0] = nz;
 				n[3][0] = 1.0;
 
-				T = lddr_transform; //ladder nominal to measured
-
-				//n is if ladder sits nominally on OGP
-				//transform m to where it would be if ladder sat nominally on OGP
-				T.Invert();
-				t.Mult(T, m);
-				m = t;
-
-				//can now compare m and n in the ladder's frame
-				t = m - n;
-
-				//now do the sensor's tranform matrix
-				//sensor coordinates to OGP coordinates
-				snsr_c.SetX(t[0][0]);
-				snsr_c.SetY(t[1][0]);
-				snsr_c.SetZ(t[2][0]);
+				snsr_c.SetX(mx - nx);
+				snsr_c.SetY(my - ny);
+				snsr_c.SetZ(mz - nz);
 				snsr_x = ((u3 - u1).Unit() - (u4 - u2).Unit()).Unit();
 				snsr_y = ((u3 - u1).Unit() + (u4 - u2).Unit()).Unit();
 				snsr_z = snsr_x.Cross(snsr_y).Unit();
 	
-				//local to global
+				//matrix that transforms from sensor nominal to sensor measured (OGP coordinate system)
 				snsr_transform[0][0] = snsr_x.X();	snsr_transform[0][1] = snsr_y.X();	snsr_transform[0][2] = snsr_z.X();	snsr_transform[0][3] = snsr_c.X();
 				snsr_transform[1][0] = snsr_x.Y();	snsr_transform[1][1] = snsr_y.Y();	snsr_transform[1][2] = snsr_z.Y();	snsr_transform[1][3] = snsr_c.Y();
 				snsr_transform[2][0] = snsr_x.Z();	snsr_transform[2][1] = snsr_y.Z();	snsr_transform[2][2] = snsr_z.Z();	snsr_transform[2][3] = snsr_c.Z();
 				snsr_transform[3][0] = 0.0;		snsr_transform[3][1] = 0.0;		snsr_transform[3][2] = 0.0;		snsr_transform[3][3] = 1.0;
 
-				//(local to global)^-1 * local to global -> ladder's fame to global to snsr frame
 				T.Mult(snsr_transform.Invert(), lddr_transform);
 				T.Invert();
 				//Invert does in-place inversion; hence no lddr_transform.Invert(); we want to preserve that
