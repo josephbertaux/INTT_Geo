@@ -1,6 +1,6 @@
-int read_survey_file(std::string, TTree*);
+int intt_survey_file(std::string, TTree*);
 
-int read_survey_data()
+int intt_survey_data()
 {
 	char buff[128];
 	int ladders[4] = {12, 12, 16, 16};

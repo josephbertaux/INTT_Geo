@@ -17,7 +17,7 @@ void draw_intt()
 	tree = (TTree*)file->Get("intt_geo");
 	if(!tree)
 	{
-		std::cout << "Couldn't get tree 'intt_gel'" << std::endl;
+		std::cout << "Couldn't get tree 'intt_geo'" << std::endl;
 		return;
 	}
 

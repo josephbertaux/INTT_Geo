@@ -1,4 +1,4 @@
-void draw_transform_params()
+void draw_transforms()
 {
 
 	TFile* file = TFile::Open("intt_transforms.root", "READ");
@@ -38,7 +38,7 @@ void draw_transform_params()
 		{
 			tree->GetEntry(n);
 
-			//bad point--OGP machine failed
+			//bad point--OGP machine failed to find one of the crosses
 			if(name.find("B1L114") != std::string::npos)continue;
 
 			param_m += *par->second;

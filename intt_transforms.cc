@@ -1,4 +1,4 @@
-void get_intt_transforms()
+void intt_transforms()
 {
 	TFile* geo_file = TFile::Open("intt_geo.root", "READ");
 	if(!geo_file)return;
@@ -21,16 +21,8 @@ void get_intt_transforms()
 
 	tree->Branch("name", &name);
 
-	tree->Branch("mx", &mx);
-	tree->Branch("nx", &nx);
 	tree->Branch("dx", &dx);
-
-	tree->Branch("my", &my);
-	tree->Branch("ny", &ny);
 	tree->Branch("dy", &dy);
-
-	tree->Branch("mz", &mz);
-	tree->Branch("nz", &nz);
 	tree->Branch("dz", &dz);
 
 	tree->Branch("alpha", &alpha);
@@ -81,6 +73,20 @@ void get_intt_transforms()
 		{"crss_4", {&b4, &u4, &v4}}
 	};
 
+	TMatrix sPHENIX_to_OGP(4, 4);	//from sPHENIX local ladder coorinates
+					//	z-x plane (long axis z), origin at ladder center
+					//to OGP coordinates
+					//	x-y plane (long axis x), origin at hole 1
+
+	//sPHENIX x in OGP coordinates	//sPHENIX y in OGP coordinates	//sPHENIX z in OGP coordinates	//sPHENIX offset in OGP coordinates
+	sPHENIX_to_OGP[0][0] = 0.0;	sPHENIX_to_OGP[0][1] = 0.0;	sPHENIX_to_OGP[0][2] = 1.0;	sPHENIX_to_OGP[0][3] = 246.0;
+	sPHENIX_to_OGP[1][0] = 1.0;	sPHENIX_to_OGP[1][1] = 0.0;	sPHENIX_to_OGP[1][2] = 0.0;	sPHENIX_to_OGP[1][3] = 17.00;
+	sPHENIX_to_OGP[2][0] = 0.0;	sPHENIX_to_OGP[2][1] = 1.0;	sPHENIX_to_OGP[2][2] = 0.0;	sPHENIX_to_OGP[2][3] = 0.000;
+	sPHENIX_to_OGP[3][0] = 0.0;	sPHENIX_to_OGP[3][1] = 0.0;	sPHENIX_to_OGP[3][2] = 0.0;	sPHENIX_to_OGP[3][3] = 1.000;
+
+	TMatrix OGP_to_sPHENIX = sPHENIX_to_OGP;
+	OGP_to_sPHENIX.Invert();
+
 	TVector3 lddr_c;
 	TVector3 lddr_x;
 	TVector3 lddr_y;
@@ -96,6 +102,7 @@ void get_intt_transforms()
 	TMatrix n(4, 1);
 
 	TMatrix T(4, 4);
+	TMatrix U(4, 4);
 	TMatrix t(4, 1);
 
 	int lyr;
@@ -141,16 +148,22 @@ void get_intt_transforms()
 
 			if(b1 or b2 or b3 or b4)continue;
 
-			mx =	( ((u4.Y() - u2.Y()) / (u4.X() - u2.X()) * u2.X() - u2.Y()) - ((u3.Y() - u1.Y()) / (u3.X() - u1.X()) * u1.X() - u1.Y()) ) /
-				( (u4.Y() - u2.Y()) / (u4.X() - u2.X()) - (u3.Y() - u1.Y()) / (u3.X() - u1.X()) );
-			my =	( ((u4.X() - u2.X()) / (u4.Y() - u2.Y()) * u2.Y() - u2.X()) - ((u3.X() - u1.X()) / (u3.Y() - u1.Y()) * u1.Y() - u1.X()) ) /
-				( (u4.X() - u2.X()) / (u4.Y() - u2.Y()) - (u3.X() - u1.X()) / (u3.Y() - u1.Y()) );
+		//	mx =	( ((u4.Y() - u2.Y()) / (u4.X() - u2.X()) * u2.X() - u2.Y()) - ((u3.Y() - u1.Y()) / (u3.X() - u1.X()) * u1.X() - u1.Y()) ) /
+		//		( (u4.Y() - u2.Y()) / (u4.X() - u2.X()) - (u3.Y() - u1.Y()) / (u3.X() - u1.X()) );
+		//	my =	( ((u4.X() - u2.X()) / (u4.Y() - u2.Y()) * u2.Y() - u2.X()) - ((u3.X() - u1.X()) / (u3.Y() - u1.Y()) * u1.Y() - u1.X()) ) /
+		//		( (u4.X() - u2.X()) / (u4.Y() - u2.Y()) - (u3.X() - u1.X()) / (u3.Y() - u1.Y()) );
+
+			mx =	(u1.X() + u2.X() + u3.X() + u4.X()) * 0.25;
+			my =	(u1.Y() + u2.Y() + u3.Y() + u4.Y()) * 0.25;
 			mz =	(u1.Z() + u2.Z() + u3.Z() + u4.Z()) * 0.25;
 
-			nx =	( ((v4.Y() - v2.Y()) / (v4.X() - v2.X()) * v2.X() - v2.Y()) - ((v3.Y() - v1.Y()) / (v3.X() - v1.X()) * v1.X() - v1.Y()) ) /
-				( (v4.Y() - v2.Y()) / (v4.X() - v2.X()) - (v3.Y() - v1.Y()) / (v3.X() - v1.X()) );
-			ny =	( ((v4.X() - v2.X()) / (v4.Y() - v2.Y()) * v2.Y() - v2.X()) - ((v3.X() - v1.X()) / (v3.Y() - v1.Y()) * v1.Y() - v1.X()) ) /
-				( (v4.X() - v2.X()) / (v4.Y() - v2.Y()) - (v3.X() - v1.X()) / (v3.Y() - v1.Y()) );
+		//	nx =	( ((v4.Y() - v2.Y()) / (v4.X() - v2.X()) * v2.X() - v2.Y()) - ((v3.Y() - v1.Y()) / (v3.X() - v1.X()) * v1.X() - v1.Y()) ) /
+		//		( (v4.Y() - v2.Y()) / (v4.X() - v2.X()) - (v3.Y() - v1.Y()) / (v3.X() - v1.X()) );
+		//	ny =	( ((v4.X() - v2.X()) / (v4.Y() - v2.Y()) * v2.Y() - v2.X()) - ((v3.X() - v1.X()) / (v3.Y() - v1.Y()) * v1.Y() - v1.X()) ) /
+		//		( (v4.X() - v2.X()) / (v4.Y() - v2.Y()) - (v3.X() - v1.X()) / (v3.Y() - v1.Y()) );
+
+			nx =	(v1.X() + v2.X() + v3.X() + v4.X()) * 0.25;
+			ny =	(v1.Y() + v2.Y() + v3.Y() + v4.Y()) * 0.25;
 			nz =	(v1.Z() + v2.Z() + v3.Z() + v4.Z()) * 0.25;
 
 			lddr_c.SetX(mx - nx);
@@ -160,17 +173,11 @@ void get_intt_transforms()
 			lddr_y = ((u3 - u1).Unit() + (u4 - u2).Unit()).Unit();
 			lddr_z = lddr_x.Cross(lddr_y).Unit();
 
+			//matrix that rotates from ladder nominal to ladder measured (local OGP coordinate system)
 			lddr_transform[0][0] = lddr_x.X();	lddr_transform[0][1] = lddr_y.X();	lddr_transform[0][2] = lddr_z.X();	lddr_transform[0][3] = lddr_c.X();
 			lddr_transform[1][0] = lddr_x.Y();	lddr_transform[1][1] = lddr_y.Y();	lddr_transform[1][2] = lddr_z.Y();	lddr_transform[1][3] = lddr_c.Y();
 			lddr_transform[2][0] = lddr_x.Z();	lddr_transform[2][1] = lddr_y.Z();	lddr_transform[2][2] = lddr_z.Z();	lddr_transform[2][3] = lddr_c.Z();
 			lddr_transform[3][0] = 0.0;		lddr_transform[3][1] = 0.0;		lddr_transform[3][2] = 0.0;		lddr_transform[3][3] = 1.0;
-
-			std::cout << std::endl;
-			std::cout << lddr_transform[0][0] << "\t" << lddr_transform[0][1] << "\t" << lddr_transform[0][2] << "\t" << lddr_transform[0][3] << "\t" << std::endl;
-			std::cout << lddr_transform[1][0] << "\t" << lddr_transform[1][1] << "\t" << lddr_transform[1][2] << "\t" << lddr_transform[1][3] << "\t" << std::endl;
-			std::cout << lddr_transform[2][0] << "\t" << lddr_transform[2][1] << "\t" << lddr_transform[2][2] << "\t" << lddr_transform[2][3] << "\t" << std::endl;
-			std::cout << lddr_transform[3][0] << "\t" << lddr_transform[3][1] << "\t" << lddr_transform[3][2] << "\t" << lddr_transform[3][3] << "\t" << std::endl;
-			std::cout << std::endl;
 
 			for(i= 0; i < component_names.size(); ++i)
 			{
@@ -203,16 +210,20 @@ void get_intt_transforms()
 
 				if(b1 or b2 or b3 or b4)continue;
 
-				mx =	( ((u4.Y() - u2.Y()) / (u4.X() - u2.X()) * u2.X() - u2.Y()) - ((u3.Y() - u1.Y()) / (u3.X() - u1.X()) * u1.X() - u1.Y()) ) /
-					( (u4.Y() - u2.Y()) / (u4.X() - u2.X()) - (u3.Y() - u1.Y()) / (u3.X() - u1.X()) );
-				my =	( ((u4.X() - u2.X()) / (u4.Y() - u2.Y()) * u2.Y() - u2.X()) - ((u3.X() - u1.X()) / (u3.Y() - u1.Y()) * u1.Y() - u1.X()) ) /
-					( (u4.X() - u2.X()) / (u4.Y() - u2.Y()) - (u3.X() - u1.X()) / (u3.Y() - u1.Y()) );
+				//mx =	( ((u4.Y() - u2.Y()) / (u4.X() - u2.X()) * u2.X() - u2.Y()) - ((u3.Y() - u1.Y()) / (u3.X() - u1.X()) * u1.X() - u1.Y()) ) /
+				//	( (u4.Y() - u2.Y()) / (u4.X() - u2.X()) - (u3.Y() - u1.Y()) / (u3.X() - u1.X()) );
+				//my =	( ((u4.X() - u2.X()) / (u4.Y() - u2.Y()) * u2.Y() - u2.X()) - ((u3.X() - u1.X()) / (u3.Y() - u1.Y()) * u1.Y() - u1.X()) ) /
+				//	( (u4.X() - u2.X()) / (u4.Y() - u2.Y()) - (u3.X() - u1.X()) / (u3.Y() - u1.Y()) );
+				mx =	(u1.X() + u2.X() + u3.X() + u4.X()) * 0.25;
+				my =	(u1.Y() + u2.Y() + u3.Y() + u4.Y()) * 0.25;
 				mz =	(u1.Z() + u2.Z() + u3.Z() + u4.Z()) * 0.25;
 
-				nx =	( ((v4.Y() - v2.Y()) / (v4.X() - v2.X()) * v2.X() - v2.Y()) - ((v3.Y() - v1.Y()) / (v3.X() - v1.X()) * v1.X() - v1.Y()) ) /
-					( (v4.Y() - v2.Y()) / (v4.X() - v2.X()) - (v3.Y() - v1.Y()) / (v3.X() - v1.X()) );
-				ny =	( ((v4.X() - v2.X()) / (v4.Y() - v2.Y()) * v2.Y() - v2.X()) - ((v3.X() - v1.X()) / (v3.Y() - v1.Y()) * v1.Y() - v1.X()) ) /
-					( (v4.X() - v2.X()) / (v4.Y() - v2.Y()) - (v3.X() - v1.X()) / (v3.Y() - v1.Y()) );
+				//nx =	( ((v4.Y() - v2.Y()) / (v4.X() - v2.X()) * v2.X() - v2.Y()) - ((v3.Y() - v1.Y()) / (v3.X() - v1.X()) * v1.X() - v1.Y()) ) /
+				//	( (v4.Y() - v2.Y()) / (v4.X() - v2.X()) - (v3.Y() - v1.Y()) / (v3.X() - v1.X()) );
+				//ny =	( ((v4.X() - v2.X()) / (v4.Y() - v2.Y()) * v2.Y() - v2.X()) - ((v3.X() - v1.X()) / (v3.Y() - v1.Y()) * v1.Y() - v1.X()) ) /
+				//	( (v4.X() - v2.X()) / (v4.Y() - v2.Y()) - (v3.X() - v1.X()) / (v3.Y() - v1.Y()) );
+				nx =	(v1.X() + v2.X() + v3.X() + v4.X()) * 0.25;
+				ny =	(v1.Y() + v2.Y() + v3.Y() + v4.Y()) * 0.25;
 				nz =	(v1.Z() + v2.Z() + v3.Z() + v4.Z()) * 0.25;
 
 				m[0][0] = mx;
@@ -225,18 +236,19 @@ void get_intt_transforms()
 				n[2][0] = nz;
 				n[3][0] = 1.0;
 
-				T = lddr_transform; //local to global
+				T = lddr_transform; //ladder nominal to measured
 
-				//n is nominal in ladder's frame
-				//transform n to global
-				t.Mult(T, n);
-				n = t;
+				//n is if ladder sits nominally on OGP
+				//transform m to where it would be if ladder sat nominally on OGP
+				T.Invert();
+				t.Mult(T, m);
+				m = t;
 
-				//compare with m in global
+				//can now compare m and n in the ladder's frame
 				t = m - n;
 
 				//now do the sensor's tranform matrix
-				//local to global, why we transformed n and not m
+				//sensor coordinates to OGP coordinates
 				snsr_c.SetX(t[0][0]);
 				snsr_c.SetY(t[1][0]);
 				snsr_c.SetZ(t[2][0]);
@@ -252,7 +264,17 @@ void get_intt_transforms()
 
 				//(local to global)^-1 * local to global -> ladder's fame to global to snsr frame
 				T.Mult(snsr_transform.Invert(), lddr_transform);
-				//T is ladder to sensor
+				T.Invert();
+				//Invert does in-place inversion; hence no lddr_transform.Invert(); we want to preserve that
+
+				//T is now the transform from sensor to ladder, but each is using the OGP convention for its local coordinates
+				//want the transform where each is using sPHENIX convention for its local coordinates
+
+				U.Mult(T, sPHENIX_to_OGP);
+				T.Mult(OGP_to_sPHENIX, U);
+
+				//T is now the transform from ladder local sPHENIX coordinates to sensor local sPHENIX coordinates
+				//T is also the transform that moves the sensor to its measured transform if it starts aligned with the ladder
 
 				//assign values and fill
 				name = temp + "_" + component_names[i];

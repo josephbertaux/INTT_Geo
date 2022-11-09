@@ -1,4 +1,4 @@
-void compare_survey_data()
+void intt_geo()
 {
 	TFile* ogp_file = TFile::Open("intt_survey_data.root", "READ");
 	if(!ogp_file)return;
