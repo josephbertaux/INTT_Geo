@@ -67,7 +67,9 @@ void draw_transforms()
 		{
 			float m = (*std::get<1>(par->second)) / (*std::get<3>(par->second));
 			float s = (*std::get<2>(par->second)) / (*std::get<3>(par->second));
-			s = sqrt((s - m * m) > 0 ? s - m * m : m * m - s);
+			s = s - m * m;
+			if(s < 0)s *= -1.0;
+			s = sqrt(s);
 	
 			name = *snsr + "_" + par->first;	
 			std::get<4>(par->second) = new TH1F(name.c_str(), name.c_str(), 9, m - 4.0 * s, m + 4.0 * s);
