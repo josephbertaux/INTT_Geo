@@ -27,7 +27,6 @@ to produce
 which contains the parameters for the affine transforms from
 each sensor's local coordinate system to its parent ladder's
 coordinate system. Does this for both the measured positions
-and nominal positions in the intt_geo.root file.
-
-^^^
-Need to rewrite
+and nominal positions in the intt_geo.root file, and computes
+an additional transform which moves from the measured sensor
+frame to the nominal sensor frame.
