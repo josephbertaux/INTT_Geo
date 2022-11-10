@@ -11,16 +11,35 @@ void draw_transforms()
 	tree->SetBranchStatus("name", 1);
 	tree->SetBranchAddress("name", &name_ptr);
 
-	float dx, dy, dz, a, b, g;
+	float dx_m;
+	float dy_m;
+	float dz_m;
+	float a_m;
+	float b_m;
+	float g_m;
+
+	float dx_r;
+	float dy_r;
+	float dz_r;
+	float a_r;
+	float b_r;
+	float g_r;
 	std::vector<std::string> sensors = {"snsr_A", "snsr_B", "snsr_C", "snsr_D"};
 	std::map<std::string, float*> params =
 	{
-		{"dx",		&dx},
-		{"dy",		&dy},
-		{"dz",		&dz},
-		{"alpha",	&a},
-		{"beta",	&b},
-		{"gamma",	&g}
+		{"dx_m",	&dx_m},
+		{"dy_m",	&dy_m},
+		{"dz_m",	&dz_m},
+		{"a_m",		&a_m},
+		{"b_m",		&b_m},
+		{"g_m",		&g_m},
+
+		{"dx_r",	&dx_r},
+		{"dy_r",	&dy_r},
+		{"dz_r",	&dz_r},
+		{"a_r",		&a_r},
+		{"b_r",		&b_r},
+		{"g_r",		&g_r}
 	};
 
 	std::string temp;
@@ -57,7 +76,7 @@ void draw_transforms()
 		std::cout << "\t" << param_v << std::endl;
 
 		TCanvas* c1; 
-		TH1F* h = new TH1F("h", par->first.c_str(), 8, param_m - 4.0 * param_v, param_m + 4.0 * param_v);
+		TH1F* h = new TH1F("h", par->first.c_str(), 9, param_m - 4.0 * param_v, param_m + 4.0 * param_v);
 
 		for(int j = 0; j < sensors.size(); ++j)
 		{
@@ -119,5 +138,4 @@ void draw_transforms()
 
 		delete h;
 	}
-
 }

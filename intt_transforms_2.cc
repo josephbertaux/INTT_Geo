@@ -42,6 +42,8 @@ bool GetSensorCorners(std::string, std::string,
 
 TMatrix GetTransform(TVector3, TVector3, TVector3, TVector3);
 
+void SetTransformParams(TMatrix, float*, float*, float*, float*, float*, float*);
+
 void PrintTransform(TMatrix, int);
 
 void intt_transforms_2()
@@ -103,6 +105,7 @@ void intt_transforms_2()
 
 	TMatrix A(4, 4);
 	TMatrix B(4, 4);
+	TMatrix C(4, 4);
 
 	std::vector<std::string> sensor_names = {"snsr_A", "snsr_B", "snsr_C", "snsr_D"};
 
@@ -119,11 +122,6 @@ void intt_transforms_2()
 			ladder_transform_m = GetTransform(u1, u2, u3, u4);
 			ladder_transform_n = GetTransform(v1, v2, v3, v4);
 
-			std::cout << std::endl;
-			std::cout << temp << std::endl;
-			PrintTransform(ladder_transform_m, 1);
-			PrintTransform(ladder_transform_n, 1);
-
 			for(auto itr = sensor_names.begin(); itr != sensor_names.end(); ++itr)
 			{
 				if(GetSensorCorners(temp, *itr, &u1, &u2, &u3, &u4, &v1, &v2, &v3, &v4))continue;
@@ -131,17 +129,22 @@ void intt_transforms_2()
 				sensor_transform_m = GetTransform(u1, u2, u3, u4);
 				sensor_transform_n = GetTransform(v1, v2, v3, v4);
 
-				std::cout << std::endl;
-				std::cout << *itr << std::endl;
-				PrintTransform(sensor_transform_m, 2);
-				PrintTransform(sensor_transform_n, 2);
-
-				A.Mult(ladder_transform_m, sensor_transform_m.Invert());
+				A.Mult(sensor_transform_m.Invert(), ladder_transform_m);
 				A.Invert(); //sensor to ladder, as measured
 
-				B.Mult(ladder_transform_n, sensor_transform_n.Invert());
+				B.Mult(sensor_transform_n.Invert(), ladder_transform_n);
+				C.Mult(A, B); //measured sensor to ladder, nominal ladder to sensor
 				B.Invert(); //sensor to ladder, nominally
 
+				//std::cout << temp << "_" << *itr << std::endl;
+				//PrintTransform(A, 1);
+
+				SetTransformParams(A, &dx_m, &dy_m, &dz_m, &a_m, &b_m, &g_m);
+				SetTransformParams(B, &dx_n, &dy_n, &dz_n, &a_n, &b_n, &g_n);
+				SetTransformParams(C, &dx_r, &dy_r, &dz_r, &a_r, &b_r, &g_r);
+
+				name = temp + "_" + *itr;
+				tree->Fill();
 			}
 		}
 	}
@@ -254,6 +257,17 @@ TMatrix GetTransform(TVector3 c1, TVector3 c2, TVector3 c3, TVector3 c4)
 	T[3][0] = 0.0;		T[3][1] = 0.0;		T[3][2] = 0.0;		T[3][3] = 1.0;
 
 	return T;
+}
+
+void SetTransformParams(TMatrix T, float* x, float* y, float* z, float* a, float* b, float* g)
+{
+	*x = T[0][3];
+	*y = T[1][3];
+	*z = T[2][3];
+	*a = atan(-T[1][2] / T[2][2]);
+	*b = atan(T[0][2] / sqrt(1 - T[0][2] * T[0][2]));
+	*g = atan(-T[0][1] / T[0][0]);
+	
 }
 
 void PrintTransform(TMatrix T, int t)
