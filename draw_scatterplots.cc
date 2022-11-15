@@ -96,7 +96,7 @@ void draw_scatterplots()
 				{
 					if(name.find(lddr->first) != std::string::npos)*std::get<3>(par->second) += lddr->second;
 				}
-				std::get<4>(par->second)->Fill();
+				std::get<4>(par->second)->Fill();//AddPoint(*std::get<3>(par->second), * std::get<0>(par->second));
 			}
 		}
 
@@ -110,11 +110,10 @@ void draw_scatterplots()
 			name = "param_scatterplots/";
 			name += *snsr + "_" + par->first + ".png";
 
-			if(c1)
-			{
-				for(const auto&& obj: *c1->GetListOfPrimitives()){std::cout << obj->GetName() << std::endl;}
-				c1->SaveAs(name.c_str());
-			}
+			TGraph* g = (TGraph*)gROOT->FindObject("Graph");
+			if(g)g->GetYaxis()->SetRangeUser(*std::get<1>(par->second) - 4.0 * *std::get<2>(par->second), *std::get<1>(par->second) - 4.0 * *std::get<2>(par->second));
+			//^^^does nothing
+			if(c1)c1->SaveAs(name.c_str());
 		}
 	}
 }
