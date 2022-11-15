@@ -11,19 +11,26 @@ void draw_transforms()
 	std::map<std::string, std::tuple<float*, float*, float*, Long64_t*, TH1F*>> params =
 	{
 				//address	//mean		//std. dev.	//counts
-		{"dx_m",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"dy_m",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"dz_m",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"a_m",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"b_m",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"g_m",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"dx_m",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"dy_m",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"dz_m",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"a_m",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"b_m",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"g_m",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
 
-		{"dx_r",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"dy_r",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"dz_r",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"a_r",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"b_r",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
-		{"g_r",		{new float(0),	new float(0), 	new float(0),	new Long64_t(0), nullptr}}
+		{"dx_n",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+		{"dy_n",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+		{"dz_n",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+		{"a_n",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+		{"b_n",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+		{"g_n",		{new float(0),	new float(0), 	new float(0),	new Long64_t(0), nullptr}}
+
+//		{"dx_r",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"dy_r",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"dz_r",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"a_r",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"b_r",		{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
+//		{"g_r",		{new float(0),	new float(0), 	new float(0),	new Long64_t(0), nullptr}}
 	};
 
 	std::string name;
