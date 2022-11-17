@@ -1,4 +1,4 @@
-Name		dx (mm)		dy (mm)		dz (mm)
+Name		x (mm)		y (mm)		z (mm)
 
 B0L000
 	snsr_A	-0.00631892	+0.15434000	-181.72647095

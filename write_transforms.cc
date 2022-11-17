@@ -16,7 +16,7 @@ void write_transforms()
 	FILE* file;
 	file = fopen("intt_transforms.txt", "w");
 
-	fprintf(file, "%s\t\t%s\t\t%s\t\t%s\n", "Name", "dx (mm)", "dy (mm)", "dz (mm)");
+	fprintf(file, "%s\t\t%s\t\t%s\t\t%s\n", "Name", "x (mm)", "y (mm)", "z (mm)");
 	for(Long64_t n = 0; n < transforms_tree->GetEntriesFast(); ++n)
 	{
 		transforms_tree->GetEntry(n);

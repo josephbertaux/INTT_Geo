@@ -61,8 +61,8 @@ void draw_scatterplots()
 		std::cout << "\t" << *snsr << std::endl;
 		for(auto par = params.begin(); par != params.end(); ++par)
 		{
-			float m = (*std::get<1>(par->second)) / (*std::get<3>(par->second));
-			float s = (*std::get<2>(par->second)) / (*std::get<3>(par->second));
+			double m = (*std::get<1>(par->second)) / (*std::get<3>(par->second));
+			double s = (*std::get<2>(par->second)) / (*std::get<3>(par->second));
 			s = s - m * m;
 			if(s < 0)s *= -1.0;
 			s = sqrt(s);
@@ -74,9 +74,6 @@ void draw_scatterplots()
 			std::get<4>(par->second) = new TGraph();
 			std::get<4>(par->second)->SetName(name.c_str());
 			std::get<4>(par->second)->SetTitle(name.c_str());
-			//std::get<4>(par->second) = new TTree(name.c_str(), name.c_str());
-			//std::get<4>(par->second)->Branch("ladder", std::get<3>(par->second));
-			//std::get<4>(par->second)->Branch(par->first.c_str(), std::get<0>(par->second));
 
 			std::cout << "\t\t" << par->first << std::endl;
 			std::cout << "\t\t\tm:\t" << m << std::endl;
@@ -105,12 +102,8 @@ void draw_scatterplots()
 
 		for(auto par = params.begin(); par != params.end(); ++par)
 		{
-			float m = *std::get<1>(par->second);
-			float s = *std::get<2>(par->second);
-
-			std::cout << "\t" << par->first << std::endl;
-			std::cout << "\t\tm:\t" << m << std::endl;
-			std::cout << "\t\ts:\t" << s << std::endl;
+			float m = std::get<4>(par->second)->GetMean(2);
+			float s = std::get<4>(par->second)->GetRMS(2);
 
 			name = *snsr + "_" + par->first;
 			TCanvas* c1 = new TCanvas(name.c_str(), name.c_str());
@@ -129,6 +122,9 @@ void draw_scatterplots()
 			std::get<4>(par->second)->GetXaxis()->SetRangeUser(-1.0, 57);
 			std::get<4>(par->second)->GetYaxis()->SetRangeUser(m - 4.0 * s, m + 4.0 * s);
 			std::get<4>(par->second)->Draw("AP");
+
+			std::cout << "\t\t\tlower:\t" << (m - 4.0 * s) << std::endl;
+			std::cout << "\t\t\tupper:\t" << (m + 4.0 * s) << std::endl;
 
 			c1->cd();
 			TPad* p2 = new TPad((name + "_line").c_str(), (name + "_line").c_str(), 0.0, 0.0, 1.0, 1.0);
