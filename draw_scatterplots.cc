@@ -14,7 +14,7 @@ void draw_scatterplots()
 		{"B1L0", 24},
 		{"B1L1", 40}
 	};
-	std::map<std::string, std::tuple<float*, float*, float*, Long64_t*, TTree*>> params =
+	std::map<std::string, std::tuple<float*, float*, float*, Long64_t*, TGraph*>> params =
 	{
 		{"dx_m",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
 		{"dy_m",	{new float(0),	new float(0),	new float(0),	new Long64_t(0), nullptr}},
@@ -71,9 +71,12 @@ void draw_scatterplots()
 	
 			name = *snsr + "_" + par->first;
 			if(std::get<4>(par->second))delete std::get<4>(par->second);
-			std::get<4>(par->second) = new TTree(name.c_str(), name.c_str());
-			std::get<4>(par->second)->Branch("ladder", std::get<3>(par->second));
-			std::get<4>(par->second)->Branch(par->first.c_str(), std::get<0>(par->second));
+			std::get<4>(par->second) = new TGraph();
+			std::get<4>(par->second)->SetName(name.c_str());
+			std::get<4>(par->second)->SetTitle(name.c_str());
+			//std::get<4>(par->second) = new TTree(name.c_str(), name.c_str());
+			//std::get<4>(par->second)->Branch("ladder", std::get<3>(par->second));
+			//std::get<4>(par->second)->Branch(par->first.c_str(), std::get<0>(par->second));
 
 			std::cout << "\t\t" << par->first << std::endl;
 			std::cout << "\t\t\tm:\t" << m << std::endl;
@@ -96,24 +99,85 @@ void draw_scatterplots()
 				{
 					if(name.find(lddr->first) != std::string::npos)*std::get<3>(par->second) += lddr->second;
 				}
-				std::get<4>(par->second)->Fill();//AddPoint(*std::get<3>(par->second), * std::get<0>(par->second));
+				std::get<4>(par->second)->AddPoint(*std::get<3>(par->second), *std::get<0>(par->second));
 			}
 		}
 
 		for(auto par = params.begin(); par != params.end(); ++par)
 		{
-			name = par->first + ":ladder";
-			std::get<4>(par->second)->SetMarkerStyle(20);
-			std::get<4>(par->second)->Draw(name.c_str());
+			float m = *std::get<1>(par->second);
+			float s = *std::get<2>(par->second);
 
-			TCanvas* c1 = (TCanvas*)gROOT->FindObject("c1");
+			std::cout << "\t" << par->first << std::endl;
+			std::cout << "\t\tm:\t" << m << std::endl;
+			std::cout << "\t\ts:\t" << s << std::endl;
+
+			name = *snsr + "_" + par->first;
+			TCanvas* c1 = new TCanvas(name.c_str(), name.c_str());
+			c1->SetFillStyle(4000);
+			c1->Range(0.0, 0.0, 1.0, 1.0);
+			c1->Draw();
+
+			c1->cd();
+			TPad* p1 = new TPad((name + "_graph").c_str(), (name + "_graph").c_str(), 0.0, 0.0, 1.0, 1.0);
+			p1->SetFillStyle(4000);
+			p1->Range(0.0, 0.0, 1.0, 1.0);
+			p1->Draw();
+
+			p1->cd();
+			std::get<4>(par->second)->SetMarkerStyle(20);
+			std::get<4>(par->second)->GetXaxis()->SetRangeUser(-1.0, 57);
+			std::get<4>(par->second)->GetYaxis()->SetRangeUser(m - 4.0 * s, m + 4.0 * s);
+			std::get<4>(par->second)->Draw("AP");
+
+			c1->cd();
+			TPad* p2 = new TPad((name + "_line").c_str(), (name + "_line").c_str(), 0.0, 0.0, 1.0, 1.0);
+			p2->SetFillStyle(4000);
+			p2->Range(0.0, 0.0, 1.0, 1.0);
+			p2->Draw();
+
+			p2->cd();
+			TLine line;
+			line.SetX1(0.1);
+			line.SetX2(0.9);
+
+			line.SetY1(0.5);
+			line.SetY2(0.5);
+			line.DrawClone();
+
+			line.SetLineStyle(3);
+
+			line.SetY1(0.4);
+			line.SetY2(0.4);
+			line.DrawClone();
+
+			line.SetY1(0.6);
+			line.SetY2(0.6);
+			line.DrawClone();
+
+
+			line.SetLineStyle(1);
+			line.SetY1(0.1);
+			line.SetY2(0.9);
+
+			line.SetX1(0.1 + 0.8 * (12.0 / 56.0));
+			line.SetX2(0.1 + 0.8 * (12.0 / 56.0));
+			line.DrawClone();
+
+			line.SetX1(0.1 + 0.8 * (24.0 / 56.0));
+			line.SetX2(0.1 + 0.8 * (24.0 / 56.0));
+			line.DrawClone();
+	
+			line.SetX1(0.1 + 0.8 * (40.0 / 56.0));
+			line.SetX2(0.1 + 0.8 * (40.0 / 56.0));
+			line.DrawClone();		
+
 			name = "param_scatterplots/";
 			name += *snsr + "_" + par->first + ".png";
 
-			TGraph* g = (TGraph*)gROOT->FindObject("Graph");
-			if(g)g->GetYaxis()->SetRangeUser(*std::get<1>(par->second) - 4.0 * *std::get<2>(par->second), *std::get<1>(par->second) - 4.0 * *std::get<2>(par->second));
-			//^^^does nothing
-			if(c1)c1->SaveAs(name.c_str());
+			c1->Update();
+			c1->SaveAs(name.c_str());
+			c1->Close();
 		}
 	}
 }
