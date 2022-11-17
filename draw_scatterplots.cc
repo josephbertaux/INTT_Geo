@@ -80,23 +80,53 @@ void draw_scatterplots()
 			std::cout << "\t\t\ts:\t" << s << std::endl;
 		}
 
-		for(Long64_t n = 0; n < tree->GetEntriesFast(); ++n)
-		{
-			tree->GetEntry(n);
-
-			//bad point--OGP machine failed to find one of the crosses
-			if(name.find("B1L114") != std::string::npos)continue;
-			//if(name.find(*lddr) == std::string::npos)continue;
-			if(name.find(*snsr) == std::string::npos)continue;
-
-			for(auto par = params.begin(); par != params.end(); ++par)
+		bool b;
+		char buff[16];
+		std::string temp;
+		int ladder;
+		int ladders[4] = {12, 12, 16, 16};
+		for(int lyr = 0; lyr < 4; ++lyr)
+		{	
+			ladder = 0;
+			for(int i = 0; i < lyr; ++i)
 			{
-				*std::get<3>(par->second) = std::stoi(name.substr(4, 2));
-				for(auto lddr = ladders.begin(); lddr != ladders.end(); ++lddr)
+				ladder += ladders[i];
+			}
+			for(int ldr = 0; ldr < ladders[lyr]; ++ldr)
+			{
+
+				sprintf(buff, "B%dL%03d", lyr / 2, (lyr % 2 * 100) + ldr);
+				temp = buff;
+				std::cout << temp << std::endl;
+
+				for(auto par = params.begin(); par != params.end(); ++par)
 				{
-					if(name.find(lddr->first) != std::string::npos)*std::get<3>(par->second) += lddr->second;
+					*std::get<3>(par->second) = ladder + ldr;
+					b = true;
+					for(Long64_t n = 0; n < tree->GetEntriesFast(); ++n)
+					{
+						tree->GetEntry(n);
+
+						if(name.find(temp) == std::string::npos)continue;
+
+						//bad point--OGP machine failed to find one of the crosses
+						if(name.find("B1L114") != std::string::npos)continue;
+						//if(name.find(*lddr) == std::string::npos)continue;
+						if(name.find(*snsr) == std::string::npos)continue;
+
+						//*std::get<3>(par->second) = std::stoi(name.substr(4, 2));
+						//for(auto lddr = ladders.begin(); lddr != ladders.end(); ++lddr)
+						//{
+						//	if(name.find(lddr->first) != std::string::npos)*std::get<3>(par->second) += lddr->second;
+						//}
+
+						std::get<4>(par->second)->AddPoint(*std::get<3>(par->second), *std::get<0>(par->second));
+						b = false;
+						break;
+					}
+
+					if(b)std::get<4>(par->second)->AddPoint(*std::get<3>(par->second), *std::get<1>(par->second));
 				}
-				std::get<4>(par->second)->AddPoint(*std::get<3>(par->second), *std::get<0>(par->second));
 			}
 		}
 
